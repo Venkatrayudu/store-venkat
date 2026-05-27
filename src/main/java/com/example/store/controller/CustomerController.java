@@ -25,6 +25,11 @@ public class CustomerController {
         return customerMapper.customersToCustomerDTOs(customerRepository.findAll());
     }
 
+    @GetMapping("/{id}")
+    public CustomerDTO getCustomerById(@PathVariable Long id) {
+        return customerMapper.customerToCustomerDTO(customerRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Customer not found with id: " + id)));
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CustomerDTO createCustomer(@RequestBody Customer customer) {
