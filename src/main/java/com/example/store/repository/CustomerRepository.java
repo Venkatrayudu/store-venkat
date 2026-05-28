@@ -12,13 +12,13 @@ import java.util.Optional;
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
-    @Query("SELECT DISTINCT c FROM Customer c LEFT JOIN FETCH c.orders o LEFT JOIN FETCH o.products")
+    @Query("SELECT DISTINCT c FROM Customer c LEFT JOIN FETCH c.orders")
     List<Customer> findAllWithDetails();
 
-    @Query("SELECT DISTINCT c FROM Customer c LEFT JOIN FETCH c.orders o LEFT JOIN FETCH o.products WHERE c.id = :id")
+    @Query("SELECT DISTINCT c FROM Customer c LEFT JOIN FETCH c.orders WHERE c.id = :id")
     Optional<Customer> findByIdWithDetails(Long id);
 
     @Query(
-            "SELECT DISTINCT c FROM Customer c LEFT JOIN FETCH c.orders o LEFT JOIN FETCH o.products WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :nameQuery, '%'))")
+            "SELECT DISTINCT c FROM Customer c LEFT JOIN FETCH c.orders WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :nameQuery, '%'))")
     List<Customer> searchByNameContaining(String nameQuery);
 }
