@@ -1,10 +1,15 @@
 package com.example.store.controller;
 
+import com.example.store.dto.CreateOrderDTO;
 import com.example.store.dto.OrderDTO;
+import com.example.store.entity.Customer;
 import com.example.store.entity.Order;
 import com.example.store.exception.ResourceNotFoundException;
 import com.example.store.mapper.OrderMapper;
+import com.example.store.repository.CustomerRepository;
 import com.example.store.repository.OrderRepository;
+
+import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +27,7 @@ import java.util.List;
 public class OrderController {
 
     private final OrderRepository orderRepository;
+    private final CustomerRepository customerRepository;
     private final OrderMapper orderMapper;
 
     /**
@@ -58,14 +64,21 @@ public class OrderController {
     /**
      * Create a new order.
      *
-     * @param order the order to create
+     * @param request the order creation request
      * @return the created order DTO
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Transactional
-    public OrderDTO createOrder(@RequestBody Order order) {
-        log.info("Creating new order with description: {}", order.getDescription());
+    public OrderDTO createOrder(@Valid @RequestBody CreateOrderDTO request) {
+        log.info("Creating new order with description: {}", request.getDescription());
+        Customer customer = customerRepository
+                .findById(request.getCustomerId())
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Customer not found with id: " + request.getCustomerId()));
+        Order order = new Order();
+        order.setDescription(request.getDescription());
+        order.setCustomer(customer);
         Order savedOrder = orderRepository.save(order);
         return orderMapper.orderToOrderDTO(savedOrder);
     }
@@ -80,7 +93,7 @@ public class OrderController {
      */
     @PutMapping("/{id}")
     @Transactional
-    public OrderDTO updateOrder(@PathVariable Long id, @RequestBody Order orderDetails) {
+    public OrderDTO updateOrder(@PathVariable Long id, @Valid @RequestBody Order orderDetails) {
         log.debug("Updating order with id: {}", id);
         Order order = orderRepository.findById(id).orElseThrow(() -> {
             log.error("Order not found with id: {}", id);

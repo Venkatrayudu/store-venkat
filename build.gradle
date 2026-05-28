@@ -65,11 +65,33 @@ tasks.jacocoTestReport {
 
     reports {
         html.required.set(true)
+        xml.required.set(true)
     }
     afterEvaluate {
         classDirectories = files(classDirectories.files.collect {
             fileTree(dir: it,
-                    exclude: ['**/mapper/**', '**/StoreApplication.class'])
+                    exclude: ['**/mapper/**', '**/StoreApplication.class', '**/dto/**', '**/exception/**'])
         })
     }
+}
+
+jacocoTestCoverageVerification {
+    dependsOn tasks.jacocoTestReport
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.60
+            }
+        }
+    }
+    afterEvaluate {
+        classDirectories = files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: ['**/mapper/**', '**/StoreApplication.class', '**/dto/**', '**/exception/**'])
+        })
+    }
+}
+
+tasks.named('check') {
+    dependsOn tasks.jacocoTestCoverageVerification
 }

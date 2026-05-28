@@ -29,8 +29,11 @@ jobs:
           key: gradle-${{ hashFiles('**/*.gradle', 'gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: gradle-
 
-      - name: Build and test with Gradle
-        run: ./gradlew build --no-daemon
+      - name: Check code formatting
+        run: ./gradlew spotlessCheck --no-daemon
+
+      - name: Build, test and verify coverage
+        run: ./gradlew build jacocoTestCoverageVerification --no-daemon
 
       - name: Log in to Docker Hub
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -48,3 +51,7 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/store:latest
             ${{ secrets.DOCKER_USERNAME }}/store:${{ github.sha }}
+          build-args: |
+            DB_URL=${{ secrets.DB_URL }}
+            DB_USERNAME=${{ secrets.DB_USERNAME }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}

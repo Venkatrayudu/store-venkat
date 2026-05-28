@@ -1,5 +1,6 @@
 package com.example.store.controller;
 
+import com.example.store.dto.CreateOrderDTO;
 import com.example.store.entity.Customer;
 import com.example.store.entity.Order;
 import com.example.store.mapper.CustomerMapper;
@@ -65,9 +66,13 @@ class OrderControllerTests {
         when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
         when(orderRepository.save(any(Order.class))).thenReturn(order);
 
+        CreateOrderDTO request = new CreateOrderDTO();
+        request.setDescription("Test Order");
+        request.setCustomerId(1L);
+
         mockMvc.perform(post("/order")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(order)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.description").value("Test Order"))
                 .andExpect(jsonPath("$.customer.name").value("John Doe"));

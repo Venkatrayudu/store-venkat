@@ -7,10 +7,18 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
-    @Query("SELECT c FROM Customer c WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :nameQuery, '%'))")
+    @Query("SELECT DISTINCT c FROM Customer c LEFT JOIN FETCH c.orders o LEFT JOIN FETCH o.products")
+    List<Customer> findAllWithDetails();
+
+    @Query("SELECT DISTINCT c FROM Customer c LEFT JOIN FETCH c.orders o LEFT JOIN FETCH o.products WHERE c.id = :id")
+    Optional<Customer> findByIdWithDetails(Long id);
+
+    @Query(
+            "SELECT DISTINCT c FROM Customer c LEFT JOIN FETCH c.orders o LEFT JOIN FETCH o.products WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :nameQuery, '%'))")
     List<Customer> searchByNameContaining(String nameQuery);
 }

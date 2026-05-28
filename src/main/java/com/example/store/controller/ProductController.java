@@ -8,6 +8,8 @@ import com.example.store.mapper.ProductMapper;
 import com.example.store.repository.OrderRepository;
 import com.example.store.repository.ProductRepository;
 
+import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,8 +34,7 @@ public class ProductController {
     @Transactional(readOnly = true)
     public List<ProductDTO> getAllProducts() {
         log.debug("Fetching all products");
-        List<Product> products = productRepository.findAll();
-        return productMapper.productsToProductDTOs(products);
+        return productMapper.productsToProductDTOs(productRepository.findAllWithDetails());
     }
 
     /**
@@ -47,7 +48,7 @@ public class ProductController {
     @Transactional(readOnly = true)
     public ProductDTO getProductById(@PathVariable Long id) {
         log.debug("Fetching product with id: {}", id);
-        Product product = productRepository.findById(id).orElseThrow(() -> {
+        Product product = productRepository.findByIdWithDetails(id).orElseThrow(() -> {
             log.error("Product not found with id: {}", id);
             return new ResourceNotFoundException("Product not found with id: " + id);
         });
@@ -77,7 +78,7 @@ public class ProductController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Transactional
-    public ProductDTO createProduct(@RequestBody ProductDTO productDTO) {
+    public ProductDTO createProduct(@Valid @RequestBody ProductDTO productDTO) {
         log.info("Creating new product with description: {}", productDTO.getDescription());
         Product product = productMapper.productDTOToProduct(productDTO);
         product.setId(null);
@@ -94,7 +95,7 @@ public class ProductController {
         }
 
         return productMapper.productToProductDTO(
-                productRepository.findById(savedProduct.getId()).orElseThrow());
+                productRepository.findByIdWithDetails(savedProduct.getId()).orElseThrow());
     }
 
     /**

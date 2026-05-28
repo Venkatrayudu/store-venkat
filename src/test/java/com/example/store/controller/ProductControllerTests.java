@@ -59,7 +59,7 @@ class ProductControllerTests {
 
     @Test
     void testGetAllProducts() throws Exception {
-        when(productRepository.findAll()).thenReturn(List.of(product));
+        when(productRepository.findAllWithDetails()).thenReturn(List.of(product));
 
         mockMvc.perform(get("/products"))
                 .andExpect(status().isOk())
@@ -69,7 +69,7 @@ class ProductControllerTests {
 
     @Test
     void testGetProductById() throws Exception {
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(productRepository.findByIdWithDetails(1L)).thenReturn(Optional.of(product));
 
         mockMvc.perform(get("/products/1"))
                 .andExpect(status().isOk())
@@ -79,7 +79,7 @@ class ProductControllerTests {
 
     @Test
     void testGetProductByIdNotFound() throws Exception {
-        when(productRepository.findById(999L)).thenReturn(Optional.empty());
+        when(productRepository.findByIdWithDetails(999L)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/products/999")).andExpect(status().isNotFound());
     }
@@ -87,7 +87,7 @@ class ProductControllerTests {
     @Test
     void testCreateProduct() throws Exception {
         when(productRepository.save(any(Product.class))).thenReturn(product);
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(productRepository.findByIdWithDetails(1L)).thenReturn(Optional.of(product));
 
         mockMvc.perform(post("/products")
                         .contentType(MediaType.APPLICATION_JSON)

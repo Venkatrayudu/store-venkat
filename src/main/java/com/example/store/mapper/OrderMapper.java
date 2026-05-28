@@ -37,6 +37,9 @@ public interface OrderMapper {
                     ProductDTO dto = new ProductDTO();
                     dto.setId(p.getId());
                     dto.setDescription(p.getDescription());
+                    // Avoid N+1: orders on product are lazy; use only already-initialised
+                    // collection or empty list to prevent extra queries per product
+                    org.hibernate.Hibernate.initialize(p.getOrders());
                     dto.setOrderIds(p.getOrders().stream().map(Order::getId).collect(Collectors.toList()));
                     return dto;
                 })

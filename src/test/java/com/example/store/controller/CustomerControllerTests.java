@@ -1,5 +1,6 @@
 package com.example.store.controller;
 
+import com.example.store.dto.CreateCustomerDTO;
 import com.example.store.entity.Customer;
 import com.example.store.mapper.CustomerMapper;
 import com.example.store.repository.CustomerRepository;
@@ -50,16 +51,19 @@ class CustomerControllerTests {
     void testCreateCustomer() throws Exception {
         when(customerRepository.save(any(Customer.class))).thenReturn(customer);
 
+        CreateCustomerDTO request = new CreateCustomerDTO();
+        request.setName("John Doe");
+
         mockMvc.perform(post("/customer")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(customer)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("John Doe"));
     }
 
     @Test
     void testGetAllCustomers() throws Exception {
-        when(customerRepository.findAll()).thenReturn(List.of(customer));
+        when(customerRepository.findAllWithDetails()).thenReturn(List.of(customer));
 
         mockMvc.perform(get("/customer"))
                 .andExpect(status().isOk())
@@ -68,7 +72,7 @@ class CustomerControllerTests {
 
     @Test
     void testGetCustomerById() throws Exception {
-        when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
+        when(customerRepository.findByIdWithDetails(1L)).thenReturn(Optional.of(customer));
 
         mockMvc.perform(get("/customer/1"))
                 .andExpect(status().isOk())
@@ -77,7 +81,7 @@ class CustomerControllerTests {
 
     @Test
     void testGetCustomerByIdNotFound() throws Exception {
-        when(customerRepository.findById(999L)).thenReturn(Optional.empty());
+        when(customerRepository.findByIdWithDetails(999L)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/customer/999")).andExpect(status().isNotFound());
     }

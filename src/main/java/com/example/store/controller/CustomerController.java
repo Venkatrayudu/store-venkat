@@ -1,10 +1,13 @@
 package com.example.store.controller;
 
+import com.example.store.dto.CreateCustomerDTO;
 import com.example.store.dto.CustomerDTO;
 import com.example.store.entity.Customer;
 import com.example.store.exception.ResourceNotFoundException;
 import com.example.store.mapper.CustomerMapper;
 import com.example.store.repository.CustomerRepository;
+
+import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +32,7 @@ public class CustomerController {
     @Transactional(readOnly = true)
     public List<CustomerDTO> getAllCustomers() {
         log.debug("Fetching all customers");
-        return customerMapper.customersToCustomerDTOs(customerRepository.findAll());
+        return customerMapper.customersToCustomerDTOs(customerRepository.findAllWithDetails());
     }
 
     /**
@@ -44,7 +47,7 @@ public class CustomerController {
     public CustomerDTO getCustomerById(@PathVariable Long id) {
         log.debug("Fetching customer with id: {}", id);
         return customerRepository
-                .findById(id)
+                .findByIdWithDetails(id)
                 .map(customerMapper::customerToCustomerDTO)
                 .orElseThrow(() -> {
                     log.error("Customer not found with id: {}", id);
@@ -70,14 +73,16 @@ public class CustomerController {
     /**
      * Create a new customer.
      *
-     * @param customer the customer to create
+     * @param request the customer creation request
      * @return the created customer DTO
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Transactional
-    public CustomerDTO createCustomer(@RequestBody Customer customer) {
-        log.info("Creating new customer with name: {}", customer.getName());
+    public CustomerDTO createCustomer(@Valid @RequestBody CreateCustomerDTO request) {
+        log.info("Creating new customer with name: {}", request.getName());
+        Customer customer = new Customer();
+        customer.setName(request.getName());
         return customerMapper.customerToCustomerDTO(customerRepository.save(customer));
     }
 }
