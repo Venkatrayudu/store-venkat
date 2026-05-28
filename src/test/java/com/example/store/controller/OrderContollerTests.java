@@ -18,10 +18,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -55,12 +57,13 @@ class OrderControllerTests {
         order.setDescription("Test Order");
         order.setId(1L);
         order.setCustomer(customer);
+        order.setProducts(Collections.emptyList());
     }
 
     @Test
     void testCreateOrder() throws Exception {
         when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
-        when(orderRepository.save(order)).thenReturn(order);
+        when(orderRepository.save(any(Order.class))).thenReturn(order);
 
         mockMvc.perform(post("/order")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -71,12 +74,58 @@ class OrderControllerTests {
     }
 
     @Test
-    void testGetOrder() throws Exception {
-        when(orderRepository.findAll()).thenReturn(List.of(order));
+    void testGetAllOrders() throws Exception {
+        when(orderRepository.findAllWithDetails()).thenReturn(List.of(order));
 
         mockMvc.perform(get("/order"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$..description").value("Test Order"))
-                .andExpect(jsonPath("$..customer.name").value("John Doe"));
+                .andExpect(jsonPath("$[0].description").value("Test Order"))
+                .andExpect(jsonPath("$[0].customer.name").value("John Doe"));
+    }
+
+    @Test
+    void testGetOrderById() throws Exception {
+        when(orderRepository.findByIdWithDetails(1L)).thenReturn(Optional.of(order));
+
+        mockMvc.perform(get("/order/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.description").value("Test Order"));
+    }
+
+    @Test
+    void testGetOrderByIdNotFound() throws Exception {
+        when(orderRepository.findByIdWithDetails(999L)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/order/999"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testUpdateOrder() throws Exception {
+        Order updatedOrder = new Order();
+        updatedOrder.setId(1L);
+        updatedOrder.setDescription("Updated Order");
+        updatedOrder.setCustomer(customer);
+
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(orderRepository.save(any(Order.class))).thenReturn(updatedOrder);
+
+        mockMvc.perform(put("/order/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedOrder)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.description").value("Updated Order"));
+    }
+
+    @Test
+    void testDeleteOrder() throws Exception {
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+
+        mockMvc.perform(delete("/order/1"))
+                .andExpect(status().isNoContent());
+
+        verify(orderRepository, times(1)).delete(order);
     }
 }
+
+

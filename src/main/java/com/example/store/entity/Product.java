@@ -1,7 +1,6 @@
 package com.example.store.entity;
 
 import jakarta.persistence.*;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -11,19 +10,20 @@ import java.util.List;
 
 @Entity
 @Data
-@Table(name = "customer", indexes = {
-    @Index(name = "idx_customer_name", columnList = "name")
+@Table(name = "product", indexes = {
+    @Index(name = "idx_product_description", columnList = "description")
 })
 @EqualsAndHashCode(exclude = "orders")
 @ToString(exclude = "orders")
-public class Customer {
+public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 255)
-    private String name;
+    private String description;
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "products", fetch = jakarta.persistence.FetchType.LAZY)
     private List<Order> orders = new ArrayList<>();
 }
+

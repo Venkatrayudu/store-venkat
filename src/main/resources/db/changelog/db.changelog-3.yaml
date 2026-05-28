@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3-product-schema
+      author: developer@securitease.com
+      changes:
+        - sqlFile:
+            path: db/changelog/product-schema.sql
+  - changeSet:
+      id: 3-product-data
+      author: developer@securitease.com
+      changes:
+        - sqlFile:
+            path: db/changelog/product-data.sql
+  - changeSet:
+      id: 3-fix-product-sequence
+      author: developer@securitease.com
+      changes:
+        - sql:
+            sql: "SELECT setval('product_id_seq', (SELECT MAX(id) FROM product));"
+

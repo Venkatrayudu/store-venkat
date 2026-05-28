@@ -14,9 +14,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -40,11 +44,12 @@ class CustomerControllerTests {
         customer = new Customer();
         customer.setName("John Doe");
         customer.setId(1L);
+        customer.setOrders(Collections.emptyList());
     }
 
     @Test
     void testCreateCustomer() throws Exception {
-        when(customerRepository.save(customer)).thenReturn(customer);
+        when(customerRepository.save(any(Customer.class))).thenReturn(customer);
 
         mockMvc.perform(post("/customer")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -59,7 +64,45 @@ class CustomerControllerTests {
 
         mockMvc.perform(get("/customer"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$..name").value("John Doe"));
-        ;
+                .andExpect(jsonPath("$[0].name").value("John Doe"));
+    }
+
+    @Test
+    void testGetCustomerById() throws Exception {
+        when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
+
+        mockMvc.perform(get("/customer/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("John Doe"));
+    }
+
+    @Test
+    void testGetCustomerByIdNotFound() throws Exception {
+        when(customerRepository.findById(999L)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/customer/999"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testSearchCustomers() throws Exception {
+        when(customerRepository.searchByNameContaining("John")).thenReturn(List.of(customer));
+
+        mockMvc.perform(get("/customer/search")
+                        .param("query", "John"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("John Doe"));
+    }
+
+    @Test
+    void testSearchCustomersNoResults() throws Exception {
+        when(customerRepository.searchByNameContaining("NonExistent")).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/customer/search")
+                        .param("query", "NonExistent"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
     }
 }
+
+
