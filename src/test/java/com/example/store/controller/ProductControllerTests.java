@@ -3,6 +3,7 @@ package com.example.store.controller;
 import com.example.store.dto.ProductDTO;
 import com.example.store.entity.Product;
 import com.example.store.mapper.ProductMapper;
+import com.example.store.repository.OrderRepository;
 import com.example.store.repository.ProductRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -36,6 +37,9 @@ class ProductControllerTests {
 
     @MockitoBean
     private ProductRepository productRepository;
+
+    @MockitoBean
+    private OrderRepository orderRepository;
 
     private Product product;
     private ProductDTO productDTO;
@@ -83,10 +87,11 @@ class ProductControllerTests {
     @Test
     void testCreateProduct() throws Exception {
         when(productRepository.save(any(Product.class))).thenReturn(product);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
 
         mockMvc.perform(post("/products")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(product)))
+                        .content(objectMapper.writeValueAsString(productDTO)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.description").value("Laptop Computer"));
