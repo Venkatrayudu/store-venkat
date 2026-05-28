@@ -49,8 +49,12 @@ class ProductRepositoryTests {
         product.setDescription("USB Hub");
         productRepository.save(product);
 
-        assertEquals(1, productRepository.findByDescriptionContainingIgnoreCase("usb").size());
-        assertEquals(1, productRepository.findByDescriptionContainingIgnoreCase("USB").size());
+        assertEquals(
+                1,
+                productRepository.findByDescriptionContainingIgnoreCase("usb").size());
+        assertEquals(
+                1,
+                productRepository.findByDescriptionContainingIgnoreCase("USB").size());
     }
 
     @Test
