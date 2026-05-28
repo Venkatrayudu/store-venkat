@@ -28,7 +28,8 @@ public interface CustomerMapper {
                     CustomerOrderDTO dto = new CustomerOrderDTO();
                     dto.setId(o.getId());
                     dto.setDescription(o.getDescription());
-                    dto.setProductIds(o.getProducts().stream().map(p -> p.getId()).collect(Collectors.toList()));
+                    dto.setProductIds(
+                            o.getProducts().stream().map(p -> p.getId()).collect(Collectors.toList()));
                     return dto;
                 })
                 .collect(Collectors.toList());

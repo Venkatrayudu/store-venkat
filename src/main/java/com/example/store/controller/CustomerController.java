@@ -24,9 +24,7 @@ public class CustomerController {
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
 
-    /**
-     * Get all customers.
-     */
+    /** Get all customers. */
     @GetMapping
     @Transactional(readOnly = true)
     public List<CustomerDTO> getAllCustomers() {
@@ -45,7 +43,8 @@ public class CustomerController {
     @Transactional(readOnly = true)
     public CustomerDTO getCustomerById(@PathVariable Long id) {
         log.debug("Fetching customer with id: {}", id);
-        return customerRepository.findById(id)
+        return customerRepository
+                .findById(id)
                 .map(customerMapper::customerToCustomerDTO)
                 .orElseThrow(() -> {
                     log.error("Customer not found with id: {}", id);
@@ -54,8 +53,8 @@ public class CustomerController {
     }
 
     /**
-     * Search customers by name using substring match (case-insensitive).
-     * Searches across all words in the customer name.
+     * Search customers by name using substring match (case-insensitive). Searches across all words in the customer
+     * name.
      *
      * @param query the search query
      * @return list of matching customers

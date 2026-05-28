@@ -1,8 +1,6 @@
 package com.example.store.exception;
 
-/**
- * Exception thrown when a requested resource is not found.
- */
+/** Exception thrown when a requested resource is not found. */
 public class ResourceNotFoundException extends RuntimeException {
 
     public ResourceNotFoundException(String message) {
@@ -13,4 +11,3 @@ public class ResourceNotFoundException extends RuntimeException {
         super(message, cause);
     }
 }
-

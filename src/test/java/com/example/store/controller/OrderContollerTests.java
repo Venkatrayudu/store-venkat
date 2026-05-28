@@ -96,8 +96,7 @@ class OrderControllerTests {
     void testGetOrderByIdNotFound() throws Exception {
         when(orderRepository.findByIdWithDetails(999L)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/order/999"))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/order/999")).andExpect(status().isNotFound());
     }
 
     @Test
@@ -121,11 +120,8 @@ class OrderControllerTests {
     void testDeleteOrder() throws Exception {
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
 
-        mockMvc.perform(delete("/order/1"))
-                .andExpect(status().isNoContent());
+        mockMvc.perform(delete("/order/1")).andExpect(status().isNoContent());
 
         verify(orderRepository, times(1)).delete(order);
     }
 }
-
-

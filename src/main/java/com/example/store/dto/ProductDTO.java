@@ -10,4 +10,3 @@ public class ProductDTO {
     private String description;
     private List<Long> orderIds;
 }
-

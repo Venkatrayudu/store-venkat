@@ -27,9 +27,7 @@ public class ProductController {
     private final OrderRepository orderRepository;
     private final ProductMapper productMapper;
 
-    /**
-     * Get all products with their associated order IDs.
-     */
+    /** Get all products with their associated order IDs. */
     @GetMapping
     @Transactional(readOnly = true)
     public List<ProductDTO> getAllProducts() {
@@ -49,11 +47,10 @@ public class ProductController {
     @Transactional(readOnly = true)
     public ProductDTO getProductById(@PathVariable Long id) {
         log.debug("Fetching product with id: {}", id);
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Product not found with id: {}", id);
-                    return new ResourceNotFoundException("Product not found with id: " + id);
-                });
+        Product product = productRepository.findById(id).orElseThrow(() -> {
+            log.error("Product not found with id: {}", id);
+            return new ResourceNotFoundException("Product not found with id: " + id);
+        });
         return productMapper.productToProductDTO(product);
     }
 
@@ -88,14 +85,16 @@ public class ProductController {
 
         if (productDTO.getOrderIds() != null && !productDTO.getOrderIds().isEmpty()) {
             for (Long orderId : productDTO.getOrderIds()) {
-                Order order = orderRepository.findById(orderId)
+                Order order = orderRepository
+                        .findById(orderId)
                         .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
                 order.getProducts().add(savedProduct);
                 orderRepository.save(order);
             }
         }
 
-        return productMapper.productToProductDTO(productRepository.findById(savedProduct.getId()).orElseThrow());
+        return productMapper.productToProductDTO(
+                productRepository.findById(savedProduct.getId()).orElseThrow());
     }
 
     /**
@@ -110,11 +109,10 @@ public class ProductController {
     @Transactional
     public ProductDTO updateProduct(@PathVariable Long id, @RequestBody Product productDetails) {
         log.debug("Updating product with id: {}", id);
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Product not found with id: {}", id);
-                    return new ResourceNotFoundException("Product not found with id: " + id);
-                });
+        Product product = productRepository.findById(id).orElseThrow(() -> {
+            log.error("Product not found with id: {}", id);
+            return new ResourceNotFoundException("Product not found with id: " + id);
+        });
 
         if (productDetails.getDescription() != null) {
             product.setDescription(productDetails.getDescription());
@@ -136,14 +134,12 @@ public class ProductController {
     @Transactional
     public void deleteProduct(@PathVariable Long id) {
         log.debug("Deleting product with id: {}", id);
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Product not found with id: {}", id);
-                    return new ResourceNotFoundException("Product not found with id: " + id);
-                });
+        Product product = productRepository.findById(id).orElseThrow(() -> {
+            log.error("Product not found with id: {}", id);
+            return new ResourceNotFoundException("Product not found with id: " + id);
+        });
 
         productRepository.delete(product);
         log.info("Product deleted successfully with id: {}", id);
     }
 }
-

@@ -11,9 +11,9 @@ import java.util.List;
 
 @Entity
 @Data
-@Table(name = "customer", indexes = {
-    @Index(name = "idx_customer_name", columnList = "name")
-})
+@Table(
+        name = "customer",
+        indexes = {@Index(name = "idx_customer_name", columnList = "name")})
 @EqualsAndHashCode(exclude = "orders")
 @ToString(exclude = "orders")
 public class Customer {

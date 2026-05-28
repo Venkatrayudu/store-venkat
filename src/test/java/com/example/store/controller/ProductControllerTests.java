@@ -77,8 +77,7 @@ class ProductControllerTests {
     void testGetProductByIdNotFound() throws Exception {
         when(productRepository.findById(999L)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/products/999"))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/products/999")).andExpect(status().isNotFound());
     }
 
     @Test
@@ -97,18 +96,17 @@ class ProductControllerTests {
     void testSearchProducts() throws Exception {
         when(productRepository.findByDescriptionContainingIgnoreCase("Laptop")).thenReturn(List.of(product));
 
-        mockMvc.perform(get("/products/search")
-                        .param("query", "Laptop"))
+        mockMvc.perform(get("/products/search").param("query", "Laptop"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].description").value("Laptop Computer"));
     }
 
     @Test
     void testSearchProductsNoResults() throws Exception {
-        when(productRepository.findByDescriptionContainingIgnoreCase("NonExistent")).thenReturn(Collections.emptyList());
+        when(productRepository.findByDescriptionContainingIgnoreCase("NonExistent"))
+                .thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/products/search")
-                        .param("query", "NonExistent"))
+        mockMvc.perform(get("/products/search").param("query", "NonExistent"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
     }
@@ -133,10 +131,8 @@ class ProductControllerTests {
     void testDeleteProduct() throws Exception {
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
 
-        mockMvc.perform(delete("/products/1"))
-                .andExpect(status().isNoContent());
+        mockMvc.perform(delete("/products/1")).andExpect(status().isNoContent());
 
         verify(productRepository, times(1)).delete(product);
     }
 }
-

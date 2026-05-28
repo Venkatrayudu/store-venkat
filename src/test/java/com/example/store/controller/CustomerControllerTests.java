@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -80,16 +79,14 @@ class CustomerControllerTests {
     void testGetCustomerByIdNotFound() throws Exception {
         when(customerRepository.findById(999L)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/customer/999"))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/customer/999")).andExpect(status().isNotFound());
     }
 
     @Test
     void testSearchCustomers() throws Exception {
         when(customerRepository.searchByNameContaining("John")).thenReturn(List.of(customer));
 
-        mockMvc.perform(get("/customer/search")
-                        .param("query", "John"))
+        mockMvc.perform(get("/customer/search").param("query", "John"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("John Doe"));
     }
@@ -98,11 +95,8 @@ class CustomerControllerTests {
     void testSearchCustomersNoResults() throws Exception {
         when(customerRepository.searchByNameContaining("NonExistent")).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/customer/search")
-                        .param("query", "NonExistent"))
+        mockMvc.perform(get("/customer/search").param("query", "NonExistent"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
     }
 }
-
-

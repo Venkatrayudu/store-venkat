@@ -25,8 +25,8 @@ public class OrderController {
     private final OrderMapper orderMapper;
 
     /**
-     * Get all orders with their associated customers and products.
-     * Uses eager loading via JOIN FETCH to optimize performance.
+     * Get all orders with their associated customers and products. Uses eager loading via JOIN FETCH to optimize
+     * performance.
      */
     @GetMapping
     @Transactional(readOnly = true)
@@ -46,7 +46,8 @@ public class OrderController {
     @Transactional(readOnly = true)
     public OrderDTO getOrderById(@PathVariable Long id) {
         log.debug("Fetching order with id: {}", id);
-        return orderRepository.findByIdWithDetails(id)
+        return orderRepository
+                .findByIdWithDetails(id)
                 .map(orderMapper::orderToOrderDTO)
                 .orElseThrow(() -> {
                     log.error("Order not found with id: {}", id);
@@ -81,11 +82,10 @@ public class OrderController {
     @Transactional
     public OrderDTO updateOrder(@PathVariable Long id, @RequestBody Order orderDetails) {
         log.debug("Updating order with id: {}", id);
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Order not found with id: {}", id);
-                    return new ResourceNotFoundException("Order not found with id: " + id);
-                });
+        Order order = orderRepository.findById(id).orElseThrow(() -> {
+            log.error("Order not found with id: {}", id);
+            return new ResourceNotFoundException("Order not found with id: " + id);
+        });
 
         if (orderDetails.getDescription() != null) {
             order.setDescription(orderDetails.getDescription());
@@ -111,11 +111,10 @@ public class OrderController {
     @Transactional
     public void deleteOrder(@PathVariable Long id) {
         log.debug("Deleting order with id: {}", id);
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Order not found with id: {}", id);
-                    return new ResourceNotFoundException("Order not found with id: " + id);
-                });
+        Order order = orderRepository.findById(id).orElseThrow(() -> {
+            log.error("Order not found with id: {}", id);
+            return new ResourceNotFoundException("Order not found with id: " + id);
+        });
 
         orderRepository.delete(order);
         log.info("Order deleted successfully with id: {}", id);
